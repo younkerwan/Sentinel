@@ -17,11 +17,16 @@ package com.alibaba.csp.sentinel.demo.spring.webmvc.controller;
 
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
+
+import org.springframework.http.HttpRequest;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
+
+import javax.servlet.ServletRequest;
+import javax.servlet.http.HttpServletRequest;
 
 /**
  * Test controller
@@ -46,9 +51,35 @@ public class WebMvcTestController {
 
     @GetMapping("/foo/{id}")
     @ResponseBody
-    public String apiFoo(@PathVariable("id") Long id) {
+    public String apiFoo(@PathVariable("id") Long id, HttpServletRequest request) {
         doBusiness();
-        return "Hello " + id;
+        System.out.println("request.getRemoteAddr()"+request.getRemoteAddr());
+        System.out.println("request.getRemoteHost()"+request.getRemoteHost());
+        System.out.println("request.getRemoteUser()"+request.getRemoteUser());
+        System.out.println("request.getRemotePort()"+request.getRemotePort());
+        System.out.println("request.getServerName()"+request.getServerName());
+        System.out.println("request.getServerName()"+request.getLocalAddr());
+        System.out.println("request.getServerName()"+request.getLocalName());
+        System.out.println("request.getServerName()"+request.getPathInfo());
+        System.out.println("request.getServerName()"+request.getLocalAddr());
+       
+        return "Hello " + id + "S-user:" + request.getRemoteAddr();
+    }
+    @GetMapping("/foo/{id}/api")
+    @ResponseBody
+    public String apiFoo1(@PathVariable("id") Long id, HttpServletRequest request) {
+        doBusiness();
+        System.out.println("request.getRemoteAddr()"+request.getRemoteAddr());
+        System.out.println("request.getRemoteHost()"+request.getRemoteHost());
+        System.out.println("request.getRemoteUser()"+request.getRemoteUser());
+        System.out.println("request.getRemotePort()"+request.getRemotePort());
+        System.out.println("request.getServerName()"+request.getServerName());
+        System.out.println("request.getServerName()"+request.getLocalAddr());
+        System.out.println("request.getServerName()"+request.getLocalName());
+        System.out.println("request.getServerName()"+request.getPathInfo());
+        System.out.println("request.getServerName()"+request.getLocalAddr());
+
+        return "Hello " + id + "S-user:" + request.getRemoteAddr();
     }
 
     @GetMapping("/exclude/{id}")
