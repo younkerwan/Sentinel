@@ -15,6 +15,7 @@
  */
 package com.alibaba.csp.sentinel.demo.spring.webmvc;
 
+import com.alibaba.csp.sentinel.demo.spring.webmvc.datasource.nacos.NacosDataSourceDemo;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
@@ -24,10 +25,12 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  *
  * @author kaizi2009
  */
+
 @SpringBootApplication
 public class WebMvcDemoApplication {
 
     public static void main(String[] args) {
+        NacosDataSourceDemo.loadRules();
         SpringApplication.run(WebMvcDemoApplication.class);
     }
 }

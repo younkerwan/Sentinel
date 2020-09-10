@@ -18,12 +18,18 @@ package com.alibaba.csp.sentinel.demo.spring.webmvc.config;
 import com.alibaba.csp.sentinel.adapter.spring.webmvc.SentinelWebInterceptor;
 import com.alibaba.csp.sentinel.adapter.spring.webmvc.SentinelWebTotalInterceptor;
 import com.alibaba.csp.sentinel.adapter.spring.webmvc.callback.DefaultBlockExceptionHandler;
+import com.alibaba.csp.sentinel.adapter.spring.webmvc.callback.RequestOriginParser;
+import com.alibaba.csp.sentinel.adapter.spring.webmvc.callback.UrlCleaner;
 import com.alibaba.csp.sentinel.adapter.spring.webmvc.config.SentinelWebMvcConfig;
 import com.alibaba.csp.sentinel.adapter.spring.webmvc.config.SentinelWebMvcTotalConfig;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+
+import javax.annotation.Resource;
+import javax.servlet.ServletRequest;
+import javax.servlet.http.HttpServletRequest;
 
 /**
  * Config sentinel interceptor
@@ -32,7 +38,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
  */
 @Configuration
 public class InterceptorConfig implements WebMvcConfigurer {
-
+    
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         // Add Sentinel interceptor
@@ -60,6 +66,30 @@ public class InterceptorConfig implements WebMvcConfigurer {
         // We can change it and view different result in `Resource Chain` menu of dashboard.
         config.setWebContextUnify(true);
         config.setOriginParser(request -> request.getHeader("S-user"));
+        config.setOriginParser(ServletRequest::getRemoteAddr); //设置访问资源的ip
+//        config.setOriginParser(new RequestOriginParser() {
+//            @Override
+//            public String parseOrigin(HttpServletRequest httpServletRequest) {
+//
+//                
+//                return httpServletRequest.getRemoteAddr();
+//            }
+//        });
+        config.setUrlCleaner(originUrl -> {
+            if (originUrl == null || originUrl.isEmpty()) {
+                return originUrl;
+            }
+
+            // 比如将满足 /foo/{id} 的 URL 都归到 /foo/*
+            if (originUrl.startsWith("/foo/")) {
+                return "/foo/*";
+            }
+            // 不希望统计 *.ico 的资源文件，可以将其转换为 empty string (since 1.6.3)
+            if (originUrl.endsWith(".ico")) {
+                return "";
+            }
+            return originUrl;
+        });
 
         // Add sentinel interceptor
         registry.addInterceptor(new SentinelWebInterceptor(config)).addPathPatterns("/**");
